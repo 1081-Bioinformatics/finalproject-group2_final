@@ -1,0 +1,19 @@
+juicer:
+>apxl -n 30 *.fasta.gz
+>gzip -d *.fasta.gz
+>bwa index dm3.fasta
+>python generate_site_positions.py DpnII dm3 dm3.fasta
+>awk 'BEGIN{OFS="\t"}{print $1, $NF}'  dm3_DpnII.txt > dm3.chrom.sizes
+>scripts/juicer.sh \-z dm3.fasta \-p dm3.chrom.sizes \-y dm3_DpnII.txt \-d /opt/juicer/work/SRR5579171/ \-D /opt/juicer/ \-g dm3
+
+himapper:
+>apxl -n 30 *.fasta.gz
+>gzip -d *.fasta.gz
+>./himapper index ref_file index_prefix
+>./himapper -i index_prefix -f ReadFile1.fa -f2 ReadFile2.fa -o alignment.txt
+>java -jar juicer_tools.jar pre alignment.txt ecoli.hic index_prefix 
+
+HiC Pro:
+>/bin/utils/digest_genome.py -r DpnII -o dm3_DpnII.bed dm3.fasta
+>HiC-Pro -c config-hicpro.txt -i .SRA -o outputpath
+
